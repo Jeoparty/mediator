@@ -21,6 +21,7 @@ private:
     watchdog ping_watchdog;
     watchdog timeout_watchdog;
     bool stop_thread;
+    bool device_ready;
     void thread_loop();
     void send_pong();
 public:
@@ -29,10 +30,12 @@ public:
     serial_buzzergroup & operator=(const serial_buzzergroup &) = delete;
     virtual ~serial_buzzergroup();
     virtual void start_threads();
+    virtual std::string get_id() const;
+    virtual bool is_ready() const;
+    virtual void set_color(unsigned char buzzer_id, unsigned char r, unsigned char g, unsigned char b);
     std::set<unsigned char> perform_handshake(bool include_first_byte = true);
     void send_ping();
     void on_timeout();
-    virtual void set_color(unsigned char buzzer_id, unsigned char r, unsigned char g, unsigned char b);
 };
 
 #endif //MEDIATOR_SERIAL_BUZZERPOOL_H

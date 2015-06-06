@@ -16,6 +16,7 @@ serial_buzzergroup::serial_buzzergroup(string device)
           timeout_watchdog(milliseconds(2500), bind(&serial_buzzergroup::on_timeout, this))
 {
     this->device = device;
+    this->device_ready = false;
 
     // Initialize serial port
     port.set_option(serial_port_base::baud_rate(9600));
@@ -58,6 +59,7 @@ void serial_buzzergroup::thread_loop()
         set<unsigned char> connectedBuzzers;
         buzzergroup_connected.raise(*this, buzzers);
 
+        device_ready = true;
         unsigned char opcode;
         while (!stop_thread) {
             timeout_watchdog.kick();
@@ -177,4 +179,14 @@ void serial_buzzergroup::set_color(unsigned char buzzer_id, unsigned char r, uns
 void serial_buzzergroup::on_timeout()
 {
     stop_thread = true;
+}
+
+string serial_buzzergroup::get_id() const
+{
+    return device;
+}
+
+bool serial_buzzergroup::is_ready() const
+{
+    return device_ready;
 }

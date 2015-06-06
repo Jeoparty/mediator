@@ -18,6 +18,8 @@ public:
     virtual ~buzzergroup() = default;
     virtual void set_color(unsigned char buzzer_id, unsigned char r, unsigned char g, unsigned char b) = 0;
     virtual void start_threads() = 0;
+    virtual std::string get_id() const = 0;
+    virtual bool is_ready() const = 0;
 };
 
 #endif //MEDIATOR_BUZZERPOOL_H
