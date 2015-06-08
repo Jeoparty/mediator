@@ -4,7 +4,7 @@
 #include <string>
 #include <set>
 
-#include "event.h"
+#include "event.hpp"
 
 class buzzergroup
 {

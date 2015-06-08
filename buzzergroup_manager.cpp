@@ -1,6 +1,6 @@
-#include "buzzergroup_manager.h"
+#include "buzzergroup_manager.hpp"
 
-#include "serial_buzzergroup.h"
+#include "serial_buzzergroup.hpp"
 
 using namespace std;
 
@@ -32,4 +32,9 @@ void buzzergroup_manager::on_buzzergroup_disconnected(buzzergroup &group)
 {
     buzzergroup_disconnected.raise(group.get_id());
     buzzergroups.erase(group.get_id());
+}
+
+void buzzergroup_manager::disconnect_buzzergroups()
+{
+    buzzergroups.clear();
 }

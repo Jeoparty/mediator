@@ -7,8 +7,8 @@
 
 #include <boost/asio.hpp>
 
-#include "buzzergroup.h"
-#include "watchdog.h"
+#include "buzzergroup.hpp"
+#include "watchdog.hpp"
 
 class serial_buzzergroup : public buzzergroup
 {

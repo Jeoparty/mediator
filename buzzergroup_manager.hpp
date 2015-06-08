@@ -5,8 +5,8 @@
 #include <map>
 #include <string>
 
-#include "buzzergroup.h"
-#include "event.h"
+#include "buzzergroup.hpp"
+#include "event.hpp"
 
 class buzzergroup_manager
 {
@@ -22,6 +22,7 @@ public:
     void connect(std::string device);
     void on_buzzergroup_connect_failed(buzzergroup &, std::string);
     void on_buzzergroup_disconnected(buzzergroup &);
+    void disconnect_buzzergroups();
 };
 
 #endif //MEDIATOR_BUZZERGROUP_MANAGER_H

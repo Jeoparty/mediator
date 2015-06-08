@@ -1,10 +1,10 @@
-#include "serial_buzzergroup.h"
+#include "serial_buzzergroup.hpp"
 
 #include <exception>
 #include <algorithm>
 #include <list>
 
-#include "serial_opcode.h"
+#include "serial_opcode.hpp"
 
 using namespace std;
 using namespace std::chrono;

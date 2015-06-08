@@ -1,4 +1,4 @@
-#include "watchdog.h"
+#include "watchdog.hpp"
 
 using namespace std;
 using namespace std::chrono;
