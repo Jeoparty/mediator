@@ -30,6 +30,7 @@ serial_buzzergroup::serial_buzzergroup(string device)
 serial_buzzergroup::~serial_buzzergroup()
 {
     stop_thread = true;
+    port.close();
     if (serial_read_thread.get_id() == this_thread::get_id())
         serial_read_thread.detach();
     else
@@ -67,7 +68,8 @@ void serial_buzzergroup::thread_loop()
             read(port, buffer(&opcode, 1));
 
             unsigned char buzzer_id;
-            switch (static_cast<serial_opcode>(opcode)) {
+            switch (static_cast<serial_opcode>(opcode))
+            {
                 case serial_opcode::SERIAL_READY:
                 {
                     // TODO Clear buffers and send reset command to arduino
