@@ -15,8 +15,7 @@ serial_buzzergroup::serial_buzzergroup(string device)
           timeout_watchdog(milliseconds(2500), bind(&serial_buzzergroup::on_timeout, this))
 {
     this->device = device;
-    this->device_ready = false;
-    this->connected = true;
+    this->connected = false;
 
     // Initialize serial port
     port.set_option(serial_port_base::baud_rate(9600));
@@ -49,6 +48,7 @@ void serial_buzzergroup::thread_loop()
         try
         {
             set<unsigned char> buzzers = perform_handshake();
+            connected = true;
             buzzergroup_connected.raise(*this, move(buzzers));
         }
         catch (string s)
@@ -57,14 +57,13 @@ void serial_buzzergroup::thread_loop()
             return;
         }
 
-        device_ready = true;
         unsigned char opcode;
         while (!stop_thread) {
             timeout_watchdog.kick();
             ping_watchdog.kick();
             if (!connected)
             {
-                connected = true;
+                unique_lock<mutex> write_lock(write_mutex);
                 reset();
             }
             read(port, buffer(&opcode, 1));
@@ -87,15 +86,18 @@ void serial_buzzergroup::thread_loop()
                     break;
                 case serial_opcode::BUZZ:
                     read(port, buffer(&buzzer_id, 1));
-                    buzzer_hit.raise(*this, buzzer_id);
+                    if (connected)
+                        buzzer_hit.raise(*this, buzzer_id);
                     break;
                 case serial_opcode::CONNECT:
                     read(port, buffer(&buzzer_id, 1));
-                    buzzer_connected.raise(*this, buzzer_id);
+                    if (connected)
+                        buzzer_connected.raise(*this, buzzer_id);
                     break;
                 case serial_opcode::DISCONNECT:
                     read(port, buffer(&buzzer_id, 1));
-                    buzzer_disconnected.raise(*this, buzzer_id);
+                    if (connected)
+                        buzzer_disconnected.raise(*this, buzzer_id);
                     break;
                 default:
                 {
@@ -111,6 +113,7 @@ void serial_buzzergroup::thread_loop()
         // Nothing to do
     }
 
+    connected = false;
     buzzergroup_disconnected.raise(*this, disconnect_reason::DISCONNECTED);
 }
 
@@ -188,16 +191,13 @@ string serial_buzzergroup::get_id() const
     return device;
 }
 
-bool serial_buzzergroup::is_ready() const
-{
-    return device_ready;
-}
-
 void serial_buzzergroup::reset()
 {
     unsigned char buf = static_cast<unsigned char>(serial_opcode::RESET);
+    connected = false;
     write(port, buffer(&buf, 1));
     tcflush(port.lowest_layer().native_handle(), TCIOFLUSH);
     set<unsigned char> buzzers = perform_handshake();
+    connected = true;
     buzzergroup_connected.raise(*this, move(buzzers));
 }

@@ -21,7 +21,6 @@ private:
     watchdog ping_watchdog;
     watchdog timeout_watchdog;
     bool stop_thread;
-    bool device_ready;
     bool connected;
     void thread_loop();
     void send_pong();
@@ -36,7 +35,6 @@ public:
     virtual ~serial_buzzergroup();
     virtual void start_threads();
     virtual std::string get_id() const;
-    virtual bool is_ready() const;
     virtual void set_color(unsigned char buzzer_id, unsigned char r, unsigned char g, unsigned char b);
 };
 
