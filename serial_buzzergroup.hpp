@@ -22,6 +22,7 @@ private:
     watchdog timeout_watchdog;
     bool stop_thread;
     bool device_ready;
+    bool connected;
     void thread_loop();
     void send_pong();
 public:
@@ -36,6 +37,7 @@ public:
     std::set<unsigned char> perform_handshake(bool include_first_byte = true);
     void send_ping();
     void on_timeout();
+    void reset();
 };
 
 #endif //MEDIATOR_SERIAL_BUZZERPOOL_H

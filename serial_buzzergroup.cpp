@@ -1,7 +1,6 @@
 #include "serial_buzzergroup.hpp"
 
 #include <exception>
-#include <algorithm>
 #include <list>
 
 #include "serial_opcode.hpp"
@@ -17,6 +16,7 @@ serial_buzzergroup::serial_buzzergroup(string device)
 {
     this->device = device;
     this->device_ready = false;
+    this->connected = false;
 
     // Initialize serial port
     port.set_option(serial_port_base::baud_rate(9600));
@@ -46,10 +46,10 @@ void serial_buzzergroup::start_threads()
 void serial_buzzergroup::thread_loop()
 {
     try {
-        set<unsigned char> buzzers;
         try
         {
-            buzzers = perform_handshake();
+            set<unsigned char> buzzers = perform_handshake();
+            buzzergroup_connected.raise(*this, move(buzzers));
         }
         catch (string s)
         {
@@ -57,14 +57,16 @@ void serial_buzzergroup::thread_loop()
             return;
         }
 
-        set<unsigned char> connectedBuzzers;
-        buzzergroup_connected.raise(*this, buzzers);
-
         device_ready = true;
         unsigned char opcode;
         while (!stop_thread) {
             timeout_watchdog.kick();
             ping_watchdog.kick();
+            if (connected)
+            {
+                connected = false;
+                buzzergroup_connected.raise(*this, connected);
+            }
             read(port, buffer(&opcode, 1));
 
             unsigned char buzzer_id;
@@ -72,18 +74,9 @@ void serial_buzzergroup::thread_loop()
             {
                 case serial_opcode::SERIAL_READY:
                 {
-                    // TODO Clear buffers and send reset command to arduino
-                    set<unsigned char> new_buzzers = perform_handshake(false);
-                    list<unsigned char> changed_buzzers;
-                    set_symmetric_difference(buzzers.begin(), buzzers.end(), new_buzzers.begin(), new_buzzers.end(), changed_buzzers.begin());
-                    for (unsigned char buzzer_id : changed_buzzers)
-                    {
-                        if (new_buzzers.count(buzzer_id) > 0)
-                            buzzer_connected.raise(*this, buzzer_id);
-                        else
-                            buzzer_disconnected.raise(*this, buzzer_id);
-                    }
-                    buzzers = new_buzzers;
+                    unique_lock<std::mutex> write_lock(write_mutex);
+                    perform_handshake(false);
+                    reset();
                     break;
                 }
                 case serial_opcode::PING:
@@ -98,14 +91,18 @@ void serial_buzzergroup::thread_loop()
                     break;
                 case serial_opcode::CONNECT:
                     read(port, buffer(&buzzer_id, 1));
-                    buzzers.insert(buzzer_id);
                     buzzer_connected.raise(*this, buzzer_id);
                     break;
                 case serial_opcode::DISCONNECT:
                     read(port, buffer(&buzzer_id, 1));
-                    buzzers.erase(buzzer_id);
                     buzzer_disconnected.raise(*this, buzzer_id);
                     break;
+                default:
+                {
+                    unique_lock<std::mutex> write_lock(write_mutex);
+                    reset();
+                    break;
+                }
             }
         }
     }
@@ -114,7 +111,7 @@ void serial_buzzergroup::thread_loop()
         // Nothing to do
     }
 
-    buzzergroup_disconnected.raise(*this);
+    buzzergroup_disconnected.raise(*this, disconnect_reason::DISCONNECTED);
 }
 
 set<unsigned char> serial_buzzergroup::perform_handshake(bool include_first_byte)
@@ -180,7 +177,8 @@ void serial_buzzergroup::set_color(unsigned char buzzer_id, unsigned char r, uns
 
 void serial_buzzergroup::on_timeout()
 {
-    stop_thread = true;
+    connected = true;
+    buzzergroup_disconnected.raise(*this, disconnect_reason::TIMEOUT);
 }
 
 string serial_buzzergroup::get_id() const
@@ -191,4 +189,13 @@ string serial_buzzergroup::get_id() const
 bool serial_buzzergroup::is_ready() const
 {
     return device_ready;
+}
+
+void serial_buzzergroup::reset()
+{
+    unsigned char buf = static_cast<unsigned char>(serial_opcode::RESET);
+    write(port, buffer(&buf, 1));
+    tcflush(port.lowest_layer().native_handle(), TCIOFLUSH);
+    set<unsigned char> buzzers = perform_handshake();
+    buzzergroup_connected.raise(*this, move(buzzers));
 }
