@@ -16,7 +16,7 @@ serial_buzzergroup::serial_buzzergroup(string device)
 {
     this->device = device;
     this->device_ready = false;
-    this->connected = false;
+    this->connected = true;
 
     // Initialize serial port
     port.set_option(serial_port_base::baud_rate(9600));
@@ -62,10 +62,10 @@ void serial_buzzergroup::thread_loop()
         while (!stop_thread) {
             timeout_watchdog.kick();
             ping_watchdog.kick();
-            if (connected)
+            if (!connected)
             {
-                connected = false;
-                buzzergroup_connected.raise(*this, connected);
+                connected = true;
+                reset();
             }
             read(port, buffer(&opcode, 1));
 
@@ -151,6 +151,8 @@ set<unsigned char> serial_buzzergroup::perform_handshake(bool include_first_byte
         read(port, buffer(buf, 1));
         buzzers.insert(buf[0]);
     }
+    timeout_watchdog.kick();
+    ping_watchdog.kick();
     return buzzers;
 }
 
@@ -177,7 +179,7 @@ void serial_buzzergroup::set_color(unsigned char buzzer_id, unsigned char r, uns
 
 void serial_buzzergroup::on_timeout()
 {
-    connected = true;
+    connected = false;
     buzzergroup_disconnected.raise(*this, disconnect_reason::TIMEOUT);
 }
 
