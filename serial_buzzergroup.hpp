@@ -25,6 +25,10 @@ private:
     bool connected;
     void thread_loop();
     void send_pong();
+    void send_ping();
+    void on_timeout();
+    void reset();
+    std::set<unsigned char> perform_handshake(bool include_first_byte = true);
 public:
     serial_buzzergroup(std::string device);
     serial_buzzergroup(serial_buzzergroup const &) = delete;
@@ -34,10 +38,6 @@ public:
     virtual std::string get_id() const;
     virtual bool is_ready() const;
     virtual void set_color(unsigned char buzzer_id, unsigned char r, unsigned char g, unsigned char b);
-    std::set<unsigned char> perform_handshake(bool include_first_byte = true);
-    void send_ping();
-    void on_timeout();
-    void reset();
 };
 
 #endif //MEDIATOR_SERIAL_BUZZERPOOL_H
