@@ -49,7 +49,7 @@ void serial_buzzergroup::thread_loop()
         {
             set<unsigned char> buzzers = perform_handshake();
             connected = true;
-            buzzergroup_connected.raise(*this, move(buzzers));
+            buzzergroup_connected.raise(*this, buzzers);
         }
         catch (string s)
         {

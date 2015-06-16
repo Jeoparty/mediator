@@ -20,7 +20,7 @@ public:
     event<std::string, unsigned char> buzzer_disconnected;
     event<std::string, unsigned char> buzzer_hit;
     event<std::string, std::string> buzzergroup_connect_failed;
-    event<std::string, std::set<unsigned char>> buzzergroup_connected;
+    event<std::string, const std::set<unsigned char> &> buzzergroup_connected;
     event<std::string> buzzergroup_disconnected;
     void connect(std::string device);
 };
