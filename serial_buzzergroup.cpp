@@ -11,8 +11,8 @@ using namespace boost::asio;
 
 serial_buzzergroup::serial_buzzergroup(string device)
         : port(io, device),
-          ping_watchdog(milliseconds(1000), bind(&serial_buzzergroup::send_ping, this)),
-          timeout_watchdog(milliseconds(2500), bind(&serial_buzzergroup::on_timeout, this))
+          ping_watchdog(milliseconds(100), bind(&serial_buzzergroup::send_ping, this)),
+          timeout_watchdog(milliseconds(250), bind(&serial_buzzergroup::on_timeout, this))
 {
     this->device = device;
     this->connected = false;
