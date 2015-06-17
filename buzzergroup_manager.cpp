@@ -4,6 +4,7 @@
 #include "keyboard_buzzergroup.hpp"
 
 using namespace std;
+using namespace std::placeholders;
 
 void buzzergroup_manager::connect(std::string device, device_type type)
 {
@@ -30,6 +31,8 @@ void buzzergroup_manager::connect(std::string device, device_type type)
         group->buzzer_disconnected.connect([this](buzzergroup &buzzergroup, unsigned char buzzer_id){this->buzzer_disconnected.raise(buzzergroup.get_id(), buzzer_id);});
         group->buzzer_hit.connect([this](buzzergroup &buzzergroup, unsigned char buzzer_id){this->buzzer_hit.raise(buzzergroup.get_id(), buzzer_id);});
         group->buzzergroup_connected.connect([this](buzzergroup &buzzergroup, const std::set<unsigned char> &connected_buzzers){this->buzzergroup_connected.raise(buzzergroup.get_id(), connected_buzzers);});
+        group->buzzergroup_connect_failed.connect(bind(&buzzergroup_manager::on_buzzergroup_connect_failed, this, _1, _2));
+        group->buzzergroup_disconnected.connect(bind(&buzzergroup_manager::on_buzzergroup_disconnected, this, _1, _2));
         group->start_threads();
         buzzergroups.emplace(device, unique_ptr<buzzergroup>(group));
     }
