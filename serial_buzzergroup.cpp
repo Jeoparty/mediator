@@ -154,8 +154,6 @@ set<unsigned char> serial_buzzergroup::perform_handshake(bool include_first_byte
         read(port, buffer(buf, 1));
         buzzers.insert(buf[0]);
     }
-    timeout_watchdog.kick();
-    ping_watchdog.kick();
     return buzzers;
 }
 
@@ -200,4 +198,6 @@ void serial_buzzergroup::reset()
     set<unsigned char> buzzers = perform_handshake();
     connected = true;
     buzzergroup_connected.raise(*this, move(buzzers));
+    timeout_watchdog.kick();
+    ping_watchdog.kick();
 }
