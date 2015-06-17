@@ -74,6 +74,10 @@ void serial_buzzergroup::thread_loop()
                 case serial_opcode::SERIAL_READY:
                 {
                     unique_lock<std::mutex> write_lock(write_mutex);
+                    timeout_watchdog.stop();
+                    ping_watchdog.stop();
+                    connected = false;
+                    buzzergroup_disconnected.raise(*this, disconnect_reason::RESET);
                     perform_handshake(false);
                     reset();
                     break;
@@ -191,9 +195,9 @@ string serial_buzzergroup::get_id() const
 
 void serial_buzzergroup::reset()
 {
-    unsigned char buf = static_cast<unsigned char>(serial_opcode::RESET);
     connected = false;
-    write(port, buffer(&buf, 1));
+    port.close();
+    port.open(device);
     tcflush(port.lowest_layer().native_handle(), TCIOFLUSH);
     set<unsigned char> buzzers = perform_handshake();
     connected = true;
