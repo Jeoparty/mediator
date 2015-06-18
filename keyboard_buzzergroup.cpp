@@ -52,9 +52,19 @@ void keyboard_buzzergroup::thread_loop()
             }
         }
     }
+    catch (ios_base::failure &e)
+    {
+        // If the thread was supposed to stop this exception is thrown by design and can be ignored
+        if (!stop_thread)
+        {
+            buzzergroup_disconnected.raise(*this, disconnect_reason::ERROR);
+            return;
+        }
+    }
     catch (...)
     {
-        // Nothing to do
+        buzzergroup_disconnected.raise(*this, disconnect_reason::ERROR);
+        return;
     }
     buzzergroup_disconnected.raise(*this, disconnect_reason::DISCONNECTED);
 }

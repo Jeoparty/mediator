@@ -9,7 +9,8 @@ enum class disconnect_reason
 {
     DISCONNECTED,
     TIMEOUT,
-    RESET
+    RESET,
+    ERROR
 };
 
 #endif //MEDIATOR_DISCONNECT_REASON_HPP

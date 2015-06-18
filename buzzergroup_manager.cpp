@@ -47,7 +47,7 @@ void buzzergroup_manager::on_buzzergroup_connect_failed(buzzergroup &group, std:
 void buzzergroup_manager::on_buzzergroup_disconnected(buzzergroup &group, disconnect_reason reason)
 {
     buzzergroup_disconnected.raise(group.get_id(), reason);
-    if (reason == disconnect_reason::DISCONNECTED)
+    if (reason == disconnect_reason::DISCONNECTED || reason == disconnect_reason::ERROR)
         buzzergroups.erase(group.get_id());
 }
 
