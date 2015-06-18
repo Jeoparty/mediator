@@ -8,12 +8,8 @@ using namespace std::placeholders;
 
 void buzzergroup_manager::connect(std::string device, device_type type)
 {
-    try
-    {
-        // Check if device exists
-        buzzergroups.at(device);
-    }
-    catch (out_of_range &)
+    // Check if the device exists
+    if (buzzergroups.count(device) == 0)
     {
         // If not connect it
         buzzergroup *group;
