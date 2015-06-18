@@ -7,12 +7,12 @@ using namespace std;
 keyboard_buzzergroup::keyboard_buzzergroup(std::string device)
 {
     this->device = device;
-    file.open(device,  ios::in | ios::binary);
-    file.exceptions(fstream::failbit | fstream::badbit | fstream::eofbit);
+    file.open(device, ios::in | ios::binary);
     if (!file.is_open())
     {
         throw "Couldn't open keyboard '" + device + "'";
     }
+    file.exceptions(fstream::failbit | fstream::badbit | fstream::eofbit);
 }
 
 keyboard_buzzergroup::~keyboard_buzzergroup()
