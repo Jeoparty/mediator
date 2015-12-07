@@ -1,6 +1,8 @@
 #include "keyboard_buzzergroup.hpp"
 
+#ifdef __linux__
 #include <linux/input.h>
+#endif
 
 using namespace std;
 
@@ -40,6 +42,7 @@ void keyboard_buzzergroup::thread_loop()
     }
     buzzergroup_connected.raise(*this, buzzers);
     buzzers.clear();
+#ifdef __linux__
     try
     {
         while (!stop_thread)
@@ -66,6 +69,7 @@ void keyboard_buzzergroup::thread_loop()
         buzzergroup_disconnected.raise(*this, disconnect_reason::ERROR);
         return;
     }
+#endif
     buzzergroup_disconnected.raise(*this, disconnect_reason::DISCONNECTED);
 }
 
