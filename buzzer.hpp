@@ -8,6 +8,7 @@ class buzzer
 public:
     std::string device;
     unsigned char id;
+    buzzer() = default;
     buzzer(std::string device, unsigned char id) : device(device), id(id) {}
 };
 
