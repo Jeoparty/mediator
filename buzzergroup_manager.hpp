@@ -17,9 +17,9 @@ private:
     void on_buzzergroup_connect_failed(buzzergroup &, std::string);
     void on_buzzergroup_disconnected(buzzergroup &, disconnect_reason);
 public:
-    event<buzzer> buzzer_connected;
-    event<buzzer> buzzer_disconnected;
-    event<buzzer> buzzer_hit;
+    event<const buzzer &> buzzer_connected;
+    event<const buzzer &> buzzer_disconnected;
+    event<const buzzer &> buzzer_hit;
     event<std::string, std::string> buzzergroup_connect_failed;
     event<std::string, const std::set<unsigned char> &> buzzergroup_connected;
     event<std::string, disconnect_reason> buzzergroup_disconnected;
