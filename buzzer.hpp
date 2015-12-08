@@ -1,5 +1,5 @@
-#ifndef JEOPARDY_BUZZER_H
-#define JEOPARDY_BUZZER_H
+#ifndef MEDIATOR_BUZZER_H
+#define MEDIATOR_BUZZER_H
 
 #include <string>
 
@@ -21,4 +21,4 @@ public:
 
 };
 
-#endif //JEOPARDY_BUZZER_H
+#endif // MEDIATOR_BUZZER_H
