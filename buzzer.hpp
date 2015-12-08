@@ -10,6 +10,15 @@ public:
     unsigned char id;
     buzzer() = default;
     buzzer(std::string device, unsigned char id) : device(device), id(id) {}
+    bool operator==(const buzzer &other) const
+    {
+        return this->id == other.id && this->device == other.device;
+    }
+    bool operator!=(const buzzer &other) const
+    {
+        return !(*this == other);
+    }
+
 };
 
 #endif //JEOPARDY_BUZZER_H
