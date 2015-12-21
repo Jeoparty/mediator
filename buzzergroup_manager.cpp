@@ -6,6 +6,11 @@
 using namespace std;
 using namespace std::placeholders;
 
+template class event<const buzzer &>;
+template class event<std::string, std::string>;
+template class event<std::string, const std::set<unsigned char> &>;
+template class event<std::string, disconnect_reason>;
+
 void buzzergroup_manager::connect(std::string device, device_type type)
 {
     // Check if the device exists

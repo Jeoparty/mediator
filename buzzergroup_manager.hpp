@@ -27,4 +27,9 @@ public:
     void disconnect_buzzergroups();
 };
 
+extern template class event<const buzzer &>;
+extern template class event<std::string, std::string>;
+extern template class event<std::string, const std::set<unsigned char> &>;
+extern template class event<std::string, disconnect_reason>;
+
 #endif //MEDIATOR_BUZZERGROUP_MANAGER_H
